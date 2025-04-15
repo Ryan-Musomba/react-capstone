@@ -26,7 +26,7 @@ function OrganizationDashboard() {
   const itemsPerPage = 5;
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const categories = ['Education', 'Food', 'Healthcare', 'Disaster Relief', 'Environment']; // New: Predefined categories
+  const categories = ['Education', 'Food', 'Healthcare', 'Disaster Relief', 'Environment'];
 
   useEffect(() => {
     if (!currentUser) {
@@ -35,61 +35,47 @@ function OrganizationDashboard() {
     }
 
     const campaignQuery = query(collection(db, 'campaigns'), where('creatorId', '==', currentUser.uid));
-    const unsubscribeCampaigns = onSnapshot(
-      campaignQuery,
-      (snapshot) => {
-        const campaignsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCampaigns(campaignsList);
+    const unsubscribeCampaigns = onSnapshot(campaignQuery, (snapshot) => {
+      const campaignsList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCampaigns(campaignsList);
 
-        const campaignIds = campaignsList.map((c) => c.id);
-        if (campaignIds.length > 0) {
-          const donationQuery = query(collection(db, 'donations'), where('campaignId', 'in', campaignIds));
-          const unsubscribeDonations = onSnapshot(
-            donationQuery,
-            (donationSnapshot) => {
-              const donationsList = donationSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-              }));
-              setDonations(donationsList);
-            },
-            (err) => {
-              console.error('Donation fetch error:', err);
-            }
-          );
-          return () => unsubscribeDonations();
-        } else {
-          setDonations([]);
-        }
-      },
-      (err) => {
-        console.error('Campaign fetch error:', err);
+      const campaignIds = campaignsList.map((c) => c.id);
+      if (campaignIds.length > 0) {
+        const donationQuery = query(collection(db, 'donations'), where('campaignId', 'in', campaignIds));
+        const unsubscribeDonations = onSnapshot(donationQuery, (donationSnapshot) => {
+          const donationsList = donationSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setDonations(donationsList);
+        });
+        return () => unsubscribeDonations();
+      } else {
+        setDonations([]);
       }
-    );
+    });
 
     return () => unsubscribeCampaigns();
   }, [currentUser, navigate]);
 
   const handleCampaignSubmit = async (e) => {
     e.preventDefault();
+    const campaignData = {
+      ...newCampaign,
+      fundingGoal: parseFloat(newCampaign.fundingGoal),
+      amountRaised: 0,
+      creatorId: currentUser.uid,
+      creatorName: currentUser.displayName || 'Unknown',
+      status: 'pending',
+      createdAt: new Date(),
+      deadline: new Date(newCampaign.deadline).toISOString(),
+    };
     try {
-      const campaignData = {
-        ...newCampaign,
-        fundingGoal: parseFloat(newCampaign.fundingGoal),
-        amountRaised: 0,
-        creatorId: currentUser.uid,
-        creatorName: currentUser.displayName || 'Unknown',
-        status: 'pending',
-        createdAt: new Date(),
-        deadline: new Date(newCampaign.deadline).toISOString(),
-      };
       if (editCampaignId) {
-        const campaignRef = doc(db, 'campaigns', editCampaignId);
-        await updateDoc(campaignRef, campaignData);
-        setCampaigns(campaigns.map((c) => (c.id === editCampaignId ? { ...c, ...campaignData } : c)));
+        await updateDoc(doc(db, 'campaigns', editCampaignId), campaignData);
         setEditCampaignId(null);
       } else {
         const docRef = await addDoc(collection(db, 'campaigns'), campaignData);
@@ -106,8 +92,7 @@ function OrganizationDashboard() {
         imageUrl: '',
       });
       alert(editCampaignId ? 'Campaign updated' : 'Campaign submitted for approval');
-    } catch (err) {
-      console.error('Campaign submit error:', err);
+    } catch {
       alert('Failed to submit campaign');
     }
   };
@@ -118,8 +103,7 @@ function OrganizationDashboard() {
       await deleteDoc(doc(db, 'campaigns', id));
       setCampaigns(campaigns.filter((c) => c.id !== id));
       alert('Campaign deleted');
-    } catch (err) {
-      console.error('Campaign delete error:', err);
+    } catch {
       alert('Failed to delete campaign');
     }
   };
@@ -130,8 +114,6 @@ function OrganizationDashboard() {
   const currentDonations = donations.slice(indexOfFirstItem, indexOfLastItem);
   const totalCampaignPages = Math.ceil(campaigns.length / itemsPerPage);
   const totalDonationPages = Math.ceil(donations.length / itemsPerPage);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -162,7 +144,6 @@ function OrganizationDashboard() {
             />
           </div>
         </div>
-
         <div className="flex-1 flex flex-col p-6">
           <button
             onClick={() => navigate('/')}
@@ -288,18 +269,14 @@ function OrganizationDashboard() {
                         <h4 className="font-semibold">{c.name}</h4>
                         <p className="text-gray-600 text-sm line-clamp-2">{c.description}</p>
                         <p className="text-sm text-gray-500">
-                          Goal: ${c.fundingGoal} | Raised: ${c.amountRaised || 0}
+                          Goal: ${c.fundingGoal.toFixed(2)} | Raised: ${(c.amountRaised || 0).toFixed(2)}
                         </p>
                         {c.amountRaised >= c.fundingGoal && (
                           <p className="text-green-600 font-semibold">Goal Reached!</p>
                         )}
-                        <p className="text-sm text-gray-500">
-                          Status: {c.status}
-                        </p>
+                        <p className="text-sm text-gray-500">Status: {c.status}</p>
                         {c.status === 'rejected' && c.rejectionReason && (
-                          <p className="text-sm text-red-600">
-                            Rejection Reason: {c.rejectionReason}
-                          </p>
+                          <p className="text-sm text-red-600">Rejection Reason: {c.rejectionReason}</p>
                         )}
                         <p className="text-sm text-gray-500">
                           Deadline: {new Date(c.deadline).toLocaleDateString()}
@@ -338,7 +315,7 @@ function OrganizationDashboard() {
                     {Array.from({ length: totalCampaignPages }, (_, i) => (
                       <button
                         key={i + 1}
-                        onClick={() => paginate(i + 1)}
+                        onClick={() => setCurrentPage(i + 1)}
                         className={`px-3 py-1 rounded-md ${
                           currentPage === i + 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
                         }`}
@@ -365,7 +342,6 @@ function OrganizationDashboard() {
                         <th className="p-3">Donor</th>
                         <th className="p-3">Amount</th>
                         <th className="p-3">Date</th>
-                        
                       </tr>
                     </thead>
                     <tbody>
@@ -375,7 +351,6 @@ function OrganizationDashboard() {
                           <td className="p-3">{d.anonymous ? 'Anonymous' : d.displayName}</td>
                           <td className="p-3">${d.amount.toFixed(2)}</td>
                           <td className="p-3">{new Date(d.timestamp).toLocaleDateString()}</td>
-                          
                         </tr>
                       ))}
                     </tbody>
@@ -384,7 +359,7 @@ function OrganizationDashboard() {
                     {Array.from({ length: totalDonationPages }, (_, i) => (
                       <button
                         key={i + 1}
-                        onClick={() => paginate(i + 1)}
+                        onClick={() => setCurrentPage(i + 1)}
                         className={`px-3 py-1 rounded-md ${
                           currentPage === i + 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
                         }`}
