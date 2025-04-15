@@ -9,7 +9,7 @@ function Login({ onSuccess, onSwitchToSignup }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e, isGoogle = false) => {
+  async function handleLogin(e, isGoogle = false) {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -34,13 +34,12 @@ function Login({ onSuccess, onSwitchToSignup }) {
         });
       }
       onSuccess();
-    } catch (err) {
+    } catch {
       setError('Failed to log in. Please check your credentials.');
-      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <div className="w-full">
@@ -51,7 +50,7 @@ function Login({ onSuccess, onSwitchToSignup }) {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value.trim())}
+            onChange={e => setEmail(e.target.value.trim())}
             placeholder="Email"
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
@@ -61,7 +60,7 @@ function Login({ onSuccess, onSwitchToSignup }) {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             placeholder="Password"
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
@@ -76,25 +75,15 @@ function Login({ onSuccess, onSwitchToSignup }) {
         </button>
       </form>
       <button
-        onClick={(e) => handleLogin(e, true)}
+        onClick={e => handleLogin(e, true)}
         className="w-full mt-4 bg-white border border-gray-300 text-gray-700 p-2 rounded-md hover:bg-gray-100 flex items-center justify-center"
         disabled={loading}
       >
-        <img
-          src="https://www.google.com/favicon.ico"
-          alt="Google"
-          className="w-5 h-5 mr-2"
-        />
+        <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 mr-2" />
         Sign in with Google
       </button>
       <p className="mt-4 text-center text-sm">
-        Need an account?{' '}
-        <button
-          onClick={onSwitchToSignup}
-          className="text-indigo-600 hover:underline"
-        >
-          Sign up
-        </button>
+        Need an account? <button onClick={onSwitchToSignup} className="text-indigo-600 hover:underline">Sign up</button>
       </p>
     </div>
   );

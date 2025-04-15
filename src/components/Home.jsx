@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import Login from './Login';
 import Signup from './Signup';
 import Navbar from './Navbar';
@@ -22,66 +22,38 @@ function Home() {
     if (params.get('login')) setShowLogin(true);
     if (params.get('signup')) setShowSignup(true);
 
-    const fetchCampaigns = async () => {
-      try {
-        const q = query(collection(db, 'campaigns'), where('status', '==', 'approved'));
-        const snapshot = await getDocs(q);
-        const campaignsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setFeaturedCampaigns(campaignsList.slice(0, 3));
-      } catch (err) {
-        console.error('Error fetching campaigns:', err);
-      }
-    };
+    async function fetchCampaigns() {
+      const q = query(collection(db, 'campaigns'), where('status', '==', 'approved'));
+      const snapshot = await getDocs(q);
+      const campaignsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setFeaturedCampaigns(campaignsList.slice(0, 3));
+    }
     fetchCampaigns();
   }, [location.search]);
 
-  const handleLoginSuccess = () => {
-    setShowLogin(false);
-    navigate('/');
-  };
-
-  const handleSignupSuccess = () => {
-    setShowSignup(false);
-    navigate('/');
-  };
-
-  const handleSearch = (e) => {
+  function handleSearch(e) {
     e.preventDefault();
     navigate(`/donations?search=${searchQuery}`);
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-      
       <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-20">
-        <div className="absolute inset-0">
-         
-        </div>
         <div className="relative max-w-7xl mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">You Can Change a Life Today</h1>
           <p className="text-lg mb-6">Join us in making a difference with every donation.</p>
-          <button
-           
-            className="bg-white text-indigo-600 px-8 py-3 rounded-md font-semibold hover:bg-gray-100"
-          >
+          <button className="bg-white text-indigo-600 px-8 py-3 rounded-md font-semibold hover:bg-gray-100">
             Donate Now
           </button>
         </div>
       </div>
-
-      {/* Why We Exist */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <h2 className="text-3xl font-semibold mb-4 text-center">Why We Exist</h2>
         <p className="text-lg text-gray-600 mb-4 text-center">
           GiveHope connects donors with impactful campaigns to support communities worldwide. We ensure your contributions make a real difference.
         </p>
       </div>
-
-      {/* Impact Stats */}
       <div className="bg-gray-100 py-12">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div>
@@ -98,8 +70,6 @@ function Home() {
           </div>
         </div>
       </div>
-
-      {/* How Your Donation Helps */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <h2 className="text-3xl font-semibold mb-4 text-center">How Your Donation Helps</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -117,8 +87,6 @@ function Home() {
           </div>
         </div>
       </div>
-
-      {/* Testimonials */}
       <div className="bg-gray-100 py-12">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-3xl font-semibold mb-4 text-center">Real Stories</h2>
@@ -136,8 +104,6 @@ function Home() {
           </div>
         </div>
       </div>
-
-      {/* Featured Campaign */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <h2 className="text-3xl font-semibold mb-4 text-center">Urgent Cause</h2>
         {featuredCampaigns[0] && (
@@ -161,24 +127,14 @@ function Home() {
           </div>
         )}
       </div>
-
-      {/* Footer */}
       <footer className="bg-gray-800 text-white p-6 text-center">
         <p>© 2025 GiveHope. All rights reserved.</p>
       </footer>
-
-      {/* Modals */}
       {showLogin && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg max-w-sm w-full">
             <button onClick={() => setShowLogin(false)} className="float-right text-gray-600">✕</button>
-            <Login
-              onSuccess={handleLoginSuccess}
-              onSwitchToSignup={() => {
-                setShowLogin(false);
-                setShowSignup(true);
-              }}
-            />
+            <Login onSuccess={() => { setShowLogin(false); navigate('/'); }} onSwitchToSignup={() => { setShowLogin(false); setShowSignup(true); }} />
           </div>
         </div>
       )}
@@ -186,13 +142,7 @@ function Home() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg max-w-sm w-full">
             <button onClick={() => setShowSignup(false)} className="float-right text-gray-600">✕</button>
-            <Signup
-              onSuccess={handleSignupSuccess}
-              onSwitchToLogin={() => {
-                setShowSignup(false);
-                setShowLogin(true);
-              }}
-            />
+            <Signup onSuccess={() => { setShowSignup(false); navigate('/'); }} onSwitchToLogin={() => { setShowSignup(false); setShowLogin(true); }} />
           </div>
         </div>
       )}

@@ -29,26 +29,22 @@ function AdminDashboard() {
       return;
     }
 
-    const fetchData = async () => {
-      try {
-        const campaignSnapshot = await getDocs(collection(db, 'campaigns'));
-        const campaignsData = campaignSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+    async function fetchData() {
+      const campaignSnapshot = await getDocs(collection(db, 'campaigns'));
+      const campaignsData = campaignSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-        const userSnapshot = await getDocs(collection(db, 'users'));
-        const usersData = userSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      const userSnapshot = await getDocs(collection(db, 'users'));
+      const usersData = userSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-        setCampaigns(campaignsData);
-        setUsers(usersData);
-      } catch (err) {
-        console.error('Admin fetch error:', err);
-      }
-    };
+      setCampaigns(campaignsData);
+      setUsers(usersData);
+    }
 
     fetchData();
   }, [currentUser, userRole, navigate]);
@@ -57,8 +53,6 @@ function AdminDashboard() {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(users.length / usersPerPage);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -69,49 +63,19 @@ function AdminDashboard() {
             <h2 className="text-2xl font-bold text-indigo-600">Admin Dashboard</h2>
           </div>
           <div className="mt-4 space-y-2">
-            <SidebarItem
-              icon={<FaAd />}
-              text="Manage Campaigns"
-              active={view === 'campaigns'}
-              onClick={() => setView('campaigns')}
-            />
-            <SidebarItem
-              icon={<FaCheckCircle />}
-              text="Approve Campaigns"
-              active={view === 'approvals'}
-              onClick={() => setView('approvals')}
-            />
-            <SidebarItem
-              icon={<FaAd />}
-              text="Manage Users"
-              active={view === 'users'}
-              onClick={() => setView('users')}
-            />
+            <SidebarItem icon={<FaAd />} text="Manage Campaigns" active={view === 'campaigns'} onClick={() => setView('campaigns')} />
+            <SidebarItem icon={<FaCheckCircle />} text="Approve Campaigns" active={view === 'approvals'} onClick={() => setView('approvals')} />
+            <SidebarItem icon={<FaAd />} text="Manage Users" active={view === 'users'} onClick={() => setView('users')} />
           </div>
         </div>
-
         <div className="flex-1 flex flex-col p-6">
-          <button
-            onClick={() => navigate('/')}
-            className="mb-4 flex items-center text-indigo-600 hover:underline"
-          >
-            <FaArrowLeft className="mr-2" />
-            Back to Home
+          <button onClick={() => navigate('/')} className="mb-4 flex items-center text-indigo-600 hover:underline">
+            <FaArrowLeft className="mr-2" /> Back to Home
           </button>
-          {view === 'campaigns' && (
-            <CampaignManagement campaigns={campaigns} setCampaigns={setCampaigns} />
-          )}
-          {view === 'approvals' && (
-            <CampaignApproval campaigns={campaigns} setCampaigns={setCampaigns} />
-          )}
+          {view === 'campaigns' && <CampaignManagement campaigns={campaigns} setCampaigns={setCampaigns} />}
+          {view === 'approvals' && <CampaignApproval campaigns={campaigns} setCampaigns={setCampaigns} />}
           {view === 'users' && (
-            <UserManagement
-              users={currentUsers}
-              setUsers={setUsers}
-              totalPages={totalPages}
-              paginate={paginate}
-              currentPage={currentPage}
-            />
+            <UserManagement users={currentUsers} setUsers={setUsers} totalPages={totalPages} paginate={page => setCurrentPage(page)} currentPage={currentPage} />
           )}
         </div>
       </div>

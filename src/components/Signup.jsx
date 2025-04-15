@@ -11,7 +11,7 @@ function Signup({ onSuccess, onSwitchToLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSignup = async (e) => {
+  async function handleSignup(e) {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -26,13 +26,12 @@ function Signup({ onSuccess, onSwitchToLogin }) {
         photoURL: '',
       });
       onSuccess();
-    } catch (err) {
+    } catch {
       setError('Failed to create account. Please try again.');
-      console.error('Signup error:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <div className="w-full">
@@ -43,7 +42,7 @@ function Signup({ onSuccess, onSwitchToLogin }) {
           <input
             type="text"
             value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            onChange={e => setDisplayName(e.target.value)}
             placeholder="Display Name"
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
@@ -53,7 +52,7 @@ function Signup({ onSuccess, onSwitchToLogin }) {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value.trim())}
+            onChange={e => setEmail(e.target.value.trim())}
             placeholder="Email"
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
@@ -63,7 +62,7 @@ function Signup({ onSuccess, onSwitchToLogin }) {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             placeholder="Password (min 6 characters)"
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
@@ -73,7 +72,7 @@ function Signup({ onSuccess, onSwitchToLogin }) {
         <div className="mb-6">
           <select
             value={role}
-            onChange={(e) => setRole(e.target.value)}
+            onChange={e => setRole(e.target.value)}
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="user">User</option>
@@ -89,13 +88,7 @@ function Signup({ onSuccess, onSwitchToLogin }) {
         </button>
       </form>
       <p className="mt-4 text-center text-sm">
-        Have an account?{' '}
-        <button
-          onClick={onSwitchToLogin}
-          className="text-indigo-600 hover:underline"
-        >
-          Login
-        </button>
+        Have an account? <button onClick={onSwitchToLogin} className="text-indigo-600 hover:underline">Login</button>
       </p>
     </div>
   );

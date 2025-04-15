@@ -12,33 +12,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async user => {
       if (user) {
-        try {
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUserRole(userData.role || 'user');
-            setDisplayName(userData.displayName || 'User');
-            setCurrentUser(user);
-          } else {
-            await setDoc(userDocRef, {
-              email: user.email,
-              role: 'user',
-              createdAt: new Date(),
-              displayName: user.displayName || 'User',
-              photoURL: user.photoURL || '',
-              status: 'active'
-            });
-            setUserRole('user');
-            setDisplayName(user.displayName || 'User');
-            setCurrentUser(user);
-          }
-        } catch (err) {
-          console.error('Auth error:', err.message);
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserRole(userData.role || 'user');
+          setDisplayName(userData.displayName || 'User');
+          setCurrentUser(user);
+        } else {
+          await setDoc(userDocRef, {
+            email: user.email,
+            role: 'user',
+            createdAt: new Date(),
+            displayName: user.displayName || 'User',
+            photoURL: user.photoURL || '',
+            status: 'active'
+          });
           setUserRole('user');
-          setDisplayName('User');
+          setDisplayName(user.displayName || 'User');
           setCurrentUser(user);
         }
       } else {

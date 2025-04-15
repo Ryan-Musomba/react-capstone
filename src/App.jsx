@@ -20,26 +20,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route
-            path="/campaigns"
-            element={<ProtectedRoute><Donations /></ProtectedRoute>}
-          />
-          <Route
-            path="/user-dashboard"
-            element={<ProtectedRoute><UserDashboard /></ProtectedRoute>}
-          />
-          <Route
-            path="/admin-dashboard"
-            element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}
-          />
-          <Route
-            path="/org-dashboard"
-            element={<ProtectedRoute><OrganizationDashboard /></ProtectedRoute>}
-          />
-          <Route
-            path="/campaign/:id"
-            element={<ProtectedRoute><CampaignDetails /></ProtectedRoute>}
-          />
+          <Route path="/campaigns" element={<ProtectedRoute><Donations /></ProtectedRoute>} />
+          <Route path="/user-dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+          <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/org-dashboard" element={<ProtectedRoute><OrganizationDashboard /></ProtectedRoute>} />
+          <Route path="/campaign/:id" element={<ProtectedRoute><CampaignDetails /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

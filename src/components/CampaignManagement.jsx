@@ -4,17 +4,12 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import { FaTrash } from 'react-icons/fa';
 
 function CampaignManagement({ campaigns, setCampaigns }) {
-  const handleDelete = async (id) => {
+  async function handleDelete(id) {
     if (!window.confirm('Are you sure you want to delete this campaign?')) return;
-    try {
-      await deleteDoc(doc(db, 'campaigns', id));
-      setCampaigns(campaigns.filter((c) => c.id !== id));
-      alert('Campaign deleted');
-    } catch (err) {
-      console.error('Delete error:', err);
-      alert('Failed to delete campaign. Please try again.');
-    }
-  };
+    await deleteDoc(doc(db, 'campaigns', id));
+    setCampaigns(campaigns.filter(c => c.id !== id));
+    alert('Campaign deleted');
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -34,7 +29,7 @@ function CampaignManagement({ campaigns, setCampaigns }) {
             </tr>
           </thead>
           <tbody>
-            {campaigns.map((c) => (
+            {campaigns.map(c => (
               <tr key={c.id} className="border-b">
                 <td className="p-3">{c.name}</td>
                 <td className="p-3">{c.description}</td>
@@ -42,10 +37,7 @@ function CampaignManagement({ campaigns, setCampaigns }) {
                 <td className="p-3">${(c.amountRaised || 0).toFixed(2)}</td>
                 <td className="p-3">{c.status}</td>
                 <td className="p-3">
-                  <FaTrash
-                    className="cursor-pointer text-red-600 hover:text-red-800"
-                    onClick={() => handleDelete(c.id)}
-                  />
+                  <FaTrash className="cursor-pointer text-red-600 hover:text-red-800" onClick={() => handleDelete(c.id)} />
                 </td>
               </tr>
             ))}

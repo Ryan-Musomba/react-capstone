@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { FaUser, FaHome, FaList } from 'react-icons/fa'; // Added FaList import
+import { FaUser, FaHome, FaList } from 'react-icons/fa';
 
 function Navbar() {
   const { currentUser, userRole } = useAuth();
@@ -12,25 +12,21 @@ function Navbar() {
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    async function fetchUserData() {
       if (currentUser) {
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
         if (userDoc.exists()) {
           setDisplayName(userDoc.data().displayName || 'User');
         }
       }
-    };
+    }
     fetchUserData();
   }, [currentUser]);
 
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      navigate('/');
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
-  };
+  async function handleLogout() {
+    await auth.signOut();
+    navigate('/');
+  }
 
   return (
     <nav className="bg-white shadow-md p-4 flex justify-between items-center">
@@ -38,20 +34,12 @@ function Navbar() {
         GiveHope
       </div>
       <div className="flex items-center space-x-6">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center text-gray-600 hover:text-indigo-600"
-        >
-          <FaHome className="mr-2" />
-          Home
+        <button onClick={() => navigate('/')} className="flex items-center text-gray-600 hover:text-indigo-600">
+          <FaHome className="mr-2" /> Home
         </button>
         {currentUser && (
-          <button
-            onClick={() => navigate('/campaigns')}
-            className="flex items-center text-gray-600 hover:text-indigo-600"
-          >
-            <FaList className="mr-2" />
-            Campaigns
+          <button onClick={() => navigate('/campaigns')} className="flex items-center text-gray-600 hover:text-indigo-600">
+            <FaList className="mr-2" /> Campaigns
           </button>
         )}
         {currentUser ? (
