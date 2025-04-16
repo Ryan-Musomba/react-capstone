@@ -105,7 +105,7 @@ function Home() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <h2 className="text-3xl font-semibold mb-4 text-center">Urgent Cause</h2>
+        <h2 className="text-3xl font-semibold mb-4 text-center">Featured Campaigns</h2>
         {featuredCampaigns[0] && (
           <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row items-center">
             <img
